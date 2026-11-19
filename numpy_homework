@@ -1,0 +1,266 @@
+import numpy as np
+
+
+#NP‑E1
+A = np.array([[0.20, -0.50, 1.10, 0.40],
+              [0.80, 0.30, -0.70, 0.60],
+              [-0.40, 0.90, 0.10, -0.20]])
+#输出 A 的 ndim、shape 和 size
+print("ndim:", A.ndim)
+print("shape:", A.shape)
+print("size:", A.size)
+#输出取第 2 行（下标 1）和最后 2 列
+row1 = A[1, :]
+print("\n第2行(下标1):\n", row1, "shape =", row1.shape)
+
+last_two_cols = A[:, -2:]
+print("\n最后两列:\n", last_two_cols, "shape =", last_two_cols.shape)
+#复制为 B，将 B 的负数改成 0，保持 A 不变
+B = A.copy()
+B[B < 0] = 0
+print("\nB:\n", B)
+print("A:\n", A)
+
+
+# NP‑E2
+a = np.array([0.80, -0.60, 0.70])
+b = np.array([-0.20, 0.90, 0.40])
+#计算 a * b 和 a @ b，输出结果及各自的 shape
+elem_mul = a * b
+dot_prod = a @ b
+print("a*b:", elem_mul, "shape =", elem_mul.shape)
+print("a@b:", dot_prod, "shape =", np.shape(dot_prod))
+
+# 手动计算欧氏长度：平方‑求和‑开根号
+len_a = np.sqrt(np.sum(a ** 2))
+len_b = np.sqrt(np.sum(b ** 2))
+print(f" |a| = {len_a:.6f}")
+print(f" |b| = {len_b:.6f}")
+
+# np.linalg.norm核对
+norm_a = np.linalg.norm(a)
+norm_b = np.linalg.norm(b)
+print(f"norm核对 |a| = {norm_a:.6f}")
+print(f"norm核对 |b| = {norm_b:.6f}")
+
+
+# NP‑E3 两个向量的夹角
+def angle_deg(a, b):
+    if np.allclose(np.linalg.norm(a), 0) or np.allclose(np.linalg.norm(b), 0):
+        raise ValueError("输入不能是零向量")
+    cos_theta = (a @ b) / (np.linalg.norm(a) * np.linalg.norm(b))
+    cos_theta = np.clip(cos_theta, -1.0, 1.0)
+    rad = np.arccos(cos_theta)#余弦转弧度
+    return np.rad2deg(rad)#弧度转角度
+
+a_e3 = np.array([1.00, -1.00])
+b_e3 = np.array([1.00, 0.00])
+ang = angle_deg(a_e3, b_e3)
+print(f"夹角 = {ang:.6f} 度")
+#边界输入1：垂直向量
+a_edge = np.array([1,0])
+b_edge = np.array([0,1])
+# angle_deg(a_edge,b_edge) →90度
+
+#边界输入2：零向量，调用会抛 ValueError
+a_zero = np.array([0,0])
+angle_deg(a_zero, b_edge)
+
+
+# NP‑E4
+
+p = np.array([-0.50, 1.20, 2.00])
+q = np.array([0.80, -0.40, 1.10])
+diff = p - q
+#输出差向量 p - q
+print("p‑q差向量:", diff, "shape =", diff.shape)
+#计算欧氏距离：各坐标差的平方和，再开平方、计算曼哈顿距离：各坐标差的绝对值之和
+euclid_dist = np.sqrt(np.sum(diff ** 2))
+manhattan_dist = np.sum(np.abs(diff))
+print(f"欧氏距离 = {euclid_dist:.6f}")
+print(f"曼哈顿距离 = {manhattan_dist:.6f}")
+#边界输入
+p_edge = np.array([2.0, 3.0, -1.0])
+q_edge = np.array([2.0, 3.0, -1.0])
+#差向量全0；欧氏距离=0；曼哈顿距离=0
+
+
+# NP‑E5 把向量变为单位长度
+
+def unit_vector(a):
+    length = np.linalg.norm(a)
+    if np.allclose(length, 0):
+        raise ValueError("输入不能是零向量")
+    return a / length
+
+a_e5 = np.array([-1.20, 0.40, 0.80])
+uv = unit_vector(a_e5)
+print("单位向量:", uv)
+print("单位向量长度是否≈1:", np.allclose(np.linalg.norm(uv), 1.0))
+#边界输入：已经是单位向量
+a_edge = np.array([1.0,0.0])
+uv = unit_vector(a_edge)
+#输出与原向量几乎一样，长度=1
+
+# NP‑E6
+A_e6 = np.array([[0.20, -0.50, 1.10],
+                 [0.80, 0.40, -0.30]])
+#计算 A.sum(axis=0)，输出数值和 shape
+sum0 = A_e6.sum(axis=0)
+print("A.sum(axis=0) 按列求和:", sum0, "shape =", sum0.shape)
+# 计算 A.mean(axis=1)，输出数值和 shape
+mean1 = A_e6.mean(axis=1)
+print("A.mean(axis=1) 按行求平均:", mean1, "shape =", mean1.shape)
+#求整个数组的最大值
+global_max = A_e6.max()
+print(f"全局最大值 = {global_max:.6f}")
+# axis=0：跨行运算（每一列内部聚合）；axis=1：跨列运算（每一行内部聚合）
+#边界输入（只有一行）
+A_edge = np.array([[1.0, -2.0, 3.0]])
+# shape(1,3)
+# sum(axis=0):按列求和；mean(axis=1):得到只有1个元素的结果
+
+#NP‑E7
+
+X = np.array([[0.80, -0.60, 0.70],
+              [-0.40, 0.50, 0.20]])
+scale = np.array([1.50, 0.50, -1.00])
+bias = np.array([-0.10, 0.20, 0.30])
+#用一条数组表达式计算 Y = X * scale + bias
+Y = X * scale + bias
+print("Y:", Y)
+print("Y shape =", Y.shape)
+# scale(3,) bias(3,) 从右边开始检索，缺维左边补1，会广播匹配X的每一行(2,3)；一维数组自动对齐最后一维
+#边界输入
+X_edge = np.array([[0.2, -0.3, 0.5]]) # shape(1,3)
+scale_edge = np.array([2,1,-1])
+bias_edge = np.array([0.1,0, -0.2])
+Y_edge = X_edge * scale_edge + bias_edge
+#广播依然正常工作，不依赖多行
+
+
+# NP‑E8 把两张图像组成一个batch
+a = np.array([[[0.20, -0.40],
+               [0.70, 0.10]],
+              [[0.30, 0.80],
+               [-0.20, 0.50]],
+              [[-0.10, 0.60],
+               [0.40, -0.30]]])
+b = a + 0.10
+#用 np.stack 将 a、b 组成 batch，新增的第 0 轴表示图像编号
+batch = np.stack([a, b], axis=0)
+#输出 batch 的 shape，并提取两张图像的蓝色通道（C=2）
+print("batch shape (B,C,H,W):", batch.shape)
+blue_channel = batch[:, 2, :, :]
+print("两张图蓝色通道(C=2):\n", blue_channel)
+
+# 变换 (B,C,H,W) → (B,H,W,C)
+batch_bhwc = np.transpose(batch, (0, 2, 3, 1))
+print("变换后(B,H,W,C) shape:", batch_bhwc.shape)
+
+
+#NP‑M1
+
+def angles_to(query, X):
+    q_norm = np.linalg.norm(query)
+    if np.allclose(q_norm, 0):
+        raise ValueError("query不能为零向量")
+    x_norms = np.linalg.norm(X, axis=1)
+    dot_mat = X @ query
+    cos_arr = dot_mat / (q_norm * x_norms)
+    #求反余弦前 clip 到 [-1,1]
+    cos_arr = np.clip(cos_arr, -1.0, 1.0)
+    angles_rad = np.arccos(cos_arr)
+    angles_deg_out = np.rad2deg(angles_rad)
+    # X中零向量行置np.nan
+    zero_mask = np.allclose(x_norms, 0)
+    angles_deg_out[zero_mask] = np.nan
+    return angles_deg_out
+
+query_m1 = np.array([0.60, -0.80, 0.00])
+X_m1 = np.array([[0.30, -0.40, 0.00],
+                 [-0.60, 0.80, 0.00],
+                 [0.80, 0.60, 0.00],
+                 [0.00, 0.00, 0.00]])
+res_m1 = angles_to(query_m1, X_m1)
+print("批量夹角(度):", res_m1, "shape =", res_m1.shape)
+
+
+# NP‑M2
+
+def top_k_cosine(query, gallery, k):
+    q_norm = np.linalg.norm(query)
+    if np.allclose(q_norm, 0):
+        raise ValueError("query不能为零向量")
+    g_norms = np.linalg.norm(gallery, axis=1)
+    # 过滤零向量行（non对应“~”）
+    non_zero_mask = ~np.isclose(g_norms, 0)
+    valid_gallery = gallery[non_zero_mask]
+    valid_idx = np.nonzero(non_zero_mask)[0]
+    valid_count = len(valid_gallery)
+    #k 必须为正整数且不超过有效行数，否则抛出 ValueError；输出选中 ID
+    if not isinstance(k, int) or k <= 0 or k > valid_count:
+        raise ValueError("k必须为正整数，且不超过有效行数")
+
+    dot = valid_gallery @ query
+    sim = dot / (q_norm * g_norms[non_zero_mask])
+
+    # argsort stable：分数相同保持原顺序；取最大k个（-sim做降序）；返回下标
+    order = np.argsort(-sim, kind="stable")
+    top_k_local = order[:k]
+    top_global_idx = valid_idx[top_k_local]
+    top_sim = sim[top_k_local]
+    return top_global_idx, top_sim
+
+query_m2 = np.array([0.60, -0.80, 0.00])
+gallery_m2 = np.array([[0.60, -0.80, 0.00],
+                       [0.30, -0.40, 0.00],
+                       [0.80, 0.60, 0.00],
+                       [-0.60, 0.80, 0.00],
+                       [0.00, 0.00, 0.00]])
+ids_m2 = np.array(["img_a", "img_b", "img_c", "img_d", "img_zero"])
+
+top_idx, top_sim = top_k_cosine(query_m2, gallery_m2, k=3)
+print("top‑k索引:", top_idx)
+print("top‑k相似度:", top_sim)
+print("选中图片ID:", ids_m2[top_idx])
+
+
+#  NP‑M3
+
+A_m3 = np.array([[0.20, -0.40],
+                 [-0.60, -0.20]])
+B_m3 = np.array([[0.10, 0.20],
+                 [0.80, 0.30],
+                 [-0.50, 0.70]])
+
+# 广播：A(N,2)扩展(N,1,2), B(M,2)扩展(1,M,2) → diff (N,M,2)
+diff_ab = A_m3[:, np.newaxis, :] - B_m3[np.newaxis, :, :]
+#计算距离矩阵 D，使 D[i,j] 表示 A[i] 到 B[j] 的距离
+D = np.sqrt(np.sum(diff_ab ** 2, axis=-1))
+print("距离矩阵D:\n", D)
+print("D shape =", D.shape)
+
+# A每一行找距离最近B的索引
+nearest_b_idx = np.argmin(D, axis=1)
+print("A每行距离最近B的行索引:", nearest_b_idx)
+
+
+# NP‑M4
+X_m4 = np.array([[0.80, -0.60, 0.70],
+                 [-0.40, -0.50, 0.90]])
+W1 = np.array([[-0.10, 0.20, -0.80],
+               [0.30, -0.50, 0.10]])
+b1 = np.array([-0.15, 0.05])
+W2 = np.array([[0.20, -0.60],
+               [-0.80, 0.52]])
+b2 = np.array([0.10, -0.20])
+#计算 Z = X @ W1.T + b1
+Z = X_m4 @ W1.T + b1
+#使用 H = np.maximum(Z, 0.0)，将每个负数替换为 0
+H = np.maximum(Z, 0.0)
+#计算 Y = H @ W2.T + b2，输出 Z、H、Y 及各自 shape
+Y_m4 = H @ W2.T + b2
+print("Z:\n", Z, "\nZ shape =", Z.shape)
+print("\nH(ReLU):\n", H, "\nH shape =", H.shape)
+print("\nY输出:\n", Y_m4, "\nY shape =", Y_m4.shape)
